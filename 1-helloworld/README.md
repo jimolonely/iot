@@ -15,7 +15,7 @@
 ### 先从Arduino开始
 只需要关注串口的值，然后控制灯泡即可
 
-*hello.ino*
+[hello.ino]()
 ```arduino
 /**
 循环检测串口；
@@ -47,7 +47,7 @@ void loop(){
 ### 如何向串口写数据
 使用python的pyserial模块，需要安装，然后简单测试一下：
 
-*test.py*
+[test.py]()
 ```python
 import serial
 
@@ -89,6 +89,8 @@ APP：发出控制命令，服务器存在某个地方（内存，数据库）
 设备：不断轮训取得命令数据，或许可以增加上传数据，然后APP可以查看。
 
 可以看一个很简单的实现：
+
+[server.py]()
 ```python
 #-*-coding:utf-8-*-
 
@@ -126,4 +128,34 @@ def write_cmd(command):
     global cmd
     cmd = command
     return str(cmd)
+```
+
+### 获取命令
+现在有了服务器，可以供设备查询了。修改test.py，增加访问，当然是使用号称给人类使用的库requests。
+
+[device_req.py]()
+```python
+#-*-coding:utf-8-*-
+
+import serial
+import requests
+import time
+
+def write(cmd):
+    print(cmd)
+    try:
+        ser = serial.Serial('/dev/ttyACM0',9600)
+        ser.write(cmd)
+    except:
+        print('error')
+
+def get_cmd():
+    url = 'http://127.0.0.1:8080/getcmd'
+    while 1:
+        resp = requests.get(url)
+        write(resp.text)
+        time.sleep(2)
+
+if __name__=='__main__':
+    get_cmd()
 ```
