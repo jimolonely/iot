@@ -15,7 +15,7 @@
 ### 先从Arduino开始
 只需要关注串口的值，然后控制灯泡即可
 
-[hello.ino]()
+[hello.ino](https://github.com/jimolonely/iot/blob/master/1-helloworld/hello.ino)
 ```arduino
 /**
 循环检测串口；
@@ -47,7 +47,7 @@ void loop(){
 ### 如何向串口写数据
 使用python的pyserial模块，需要安装，然后简单测试一下：
 
-[test.py]()
+[test.py](https://github.com/jimolonely/iot/blob/master/1-helloworld/test.py)
 ```python
 import serial
 
@@ -90,7 +90,7 @@ APP：发出控制命令，服务器存在某个地方（内存，数据库）
 
 可以看一个很简单的实现：
 
-[server.py]()
+[server.py](https://github.com/jimolonely/iot/blob/master/1-helloworld/web-server/server.py)
 ```python
 #-*-coding:utf-8-*-
 
@@ -133,7 +133,7 @@ def write_cmd(command):
 ### 获取命令
 现在有了服务器，可以供设备查询了。修改test.py，增加访问，当然是使用号称给人类使用的库requests。
 
-[device_req.py]()
+[device_req.py](https://github.com/jimolonely/iot/blob/master/1-helloworld/device_req.py)
 ```python
 #-*-coding:utf-8-*-
 
