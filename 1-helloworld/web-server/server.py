@@ -18,4 +18,9 @@ def write_cmd(command):
 def get_cmd():
     return str(cmd)
 
-run(host='127.0.0.1',port=8080)
+import threading
+
+if __name__=='__main__':
+    t = threading.Thread(target=run)
+    t.start()
+

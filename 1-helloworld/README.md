@@ -144,7 +144,7 @@ import time
 def write(cmd):
     print(cmd)
     try:
-        ser = serial.Serial('/dev/ttyACM0',9600)
+        ser = serial.Serial('/dev/ttyACM1',9600)
         ser.write(cmd)
     except:
         print('error')
@@ -159,3 +159,8 @@ def get_cmd():
 if __name__=='__main__':
     get_cmd()
 ```
+
+### 到这里
+
+会发现同时访问服务器很容易就挂了，device的代码也很容易就阻塞了。
+
