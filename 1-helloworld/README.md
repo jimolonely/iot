@@ -79,3 +79,51 @@ windows下直接就是COMx
 
 但是我们需要的输入不是来自命令行，而是服务器，我们通过不断轮训获取服务器的命令，然后写入串口。所以在此之前先将服务器搭建了。
 
+### 服务器
+为了尽可能简单，采用一个不依赖其他库的python框架：[bottle.py](https://github.com/bottlepy/bottle)
+
+服务器要做的事很简单，接受来自2个地方的请求，APP和设备。
+
+APP：发出控制命令，服务器存在某个地方（内存，数据库）
+
+设备：不断轮训取得命令数据，或许可以增加上传数据，然后APP可以查看。
+
+可以看一个很简单的实现：
+```python
+#-*-coding:utf-8-*-
+
+from bottle import run,route
+
+@route('/')
+def index():
+    return 'Hello World'
+
+cmd = 0
+
+@route('/writecmd/<command>')
+def write_cmd(command):
+    global cmd
+    cmd = command
+    return str(cmd)
+
+@route('/getcmd')
+def get_cmd():
+    return str(cmd)
+
+run(host='127.0.0.1',port=8080)
+```
+我们只需访问：
+
+http://127.0.0.1:8080/writecmd/0或1 写入命令
+
+http://127.0.0.1:8080/getcmd 读取命令
+
+使用cmd存储命令，记住global cmd
+```python
+cmd = 0
+@route('/writecmd/<command>')
+def write_cmd(command):
+    global cmd
+    cmd = command
+    return str(cmd)
+```
