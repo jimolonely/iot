@@ -3,24 +3,21 @@
 如果串口数据为1则点亮灯泡；
 否则熄灭灯泡。
 */
+
 int ledPin = 13;
-char ch = '1';
+char ch = '0';
 void setup(){
   Serial.begin(9600);
   pinMode(ledPin,OUTPUT);
 }
 
 void loop(){
-  Serial.write(ch);
-  while(1){
-    if(Serial.available()){
+    if(Serial.available()>0){
       ch = Serial.read();
-      Serial.print(ch);
       if(ch=='1'){
         digitalWrite(ledPin,HIGH);
-      }else{
+      }else {
         digitalWrite(ledPin,LOW);
       }
     }
-  }
 }

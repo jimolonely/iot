@@ -12,7 +12,7 @@
 6. Android开发相关
 
 # 实现
-### 先从Arduino开始
+## 先从Arduino开始
 只需要关注串口的值，然后控制灯泡即可
 
 [hello.ino](https://github.com/jimolonely/iot/blob/master/1-helloworld/hello.ino)
@@ -22,29 +22,26 @@
 如果串口数据为1则点亮灯泡；
 否则熄灭灯泡。
 */
+
 int ledPin = 13;
-char ch = '1';
+char ch = '0';
 void setup(){
   Serial.begin(9600);
   pinMode(ledPin,OUTPUT);
 }
 
 void loop(){
-  Serial.write(ch);
-  while(1){
-    if(Serial.available()){
+    if(Serial.available()>0){
       ch = Serial.read();
-      Serial.print(ch);
       if(ch=='1'){
         digitalWrite(ledPin,HIGH);
-      }else{
+      }else {
         digitalWrite(ledPin,LOW);
       }
     }
-  }
 }
 ```
-### 如何向串口写数据
+## 如何向串口写数据
 使用python的pyserial模块，需要安装，然后简单测试一下：
 
 [test.py](https://github.com/jimolonely/iot/blob/master/1-helloworld/test.py)
@@ -79,7 +76,7 @@ windows下直接就是COMx
 
 但是我们需要的输入不是来自命令行，而是服务器，我们通过不断轮训获取服务器的命令，然后写入串口。所以在此之前先将服务器搭建了。
 
-### 服务器
+## 服务器
 为了尽可能简单，采用一个不依赖其他库的python框架：[bottle.py](https://github.com/bottlepy/bottle)
 
 服务器要做的事很简单，接受来自2个地方的请求，APP和设备。
@@ -130,7 +127,7 @@ def write_cmd(command):
     return str(cmd)
 ```
 
-### 获取命令
+## 获取命令
 现在有了服务器，可以供设备查询了。修改test.py，增加访问，当然是使用号称给人类使用的库requests。
 
 [device_req.py](https://github.com/jimolonely/iot/blob/master/1-helloworld/device_req.py)
@@ -140,27 +137,56 @@ def write_cmd(command):
 import serial
 import requests
 import time
+import threading
 
 def write(cmd):
     print(cmd)
     try:
-        ser = serial.Serial('/dev/ttyACM1',9600)
-        ser.write(cmd)
-    except:
-        print('error')
+        ser = serial.Serial('/dev/ttyACM0',9600)
+        ser.write(bytes(cmd,encoding='utf-8'))
+    except Exception as e:
+        print(e)
 
 def get_cmd():
     url = 'http://127.0.0.1:8080/getcmd'
+    cmd = '0'
     while 1:
-        resp = requests.get(url)
-        write(resp.text)
+        try:
+            resp = requests.get(url,timeout=5)
+            cmd = resp.text
+        except Exception as e:
+            print(e)
+        write(cmd)
         time.sleep(2)
 
 if __name__=='__main__':
-    get_cmd()
+    t = threading.Thread(target=get_cmd)
+    t.start()
 ```
 
-### 到这里
+## 到这里
 
 会发现同时访问服务器很容易就挂了，device的代码也很容易就阻塞了。
+
+经过实验，我发现是服务器太弱了，bottle虽然简单，不过还是太差了，所以换成django。
+
+## 换成django服务器
+
+主要代码是一样的：
+```python
+from django.http import HttpResponse
+
+cmd = '0'
+
+def write(req):
+    global cmd
+    cmd = req.GET['cmd']
+    return HttpResponse(cmd)
+
+def getcmd(req):
+    return HttpResponse(cmd)
+```
+然后就很顺利了。修复了一些bug，优化一下代码。现在只差客户端了。
+
+
 
